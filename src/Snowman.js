@@ -9,7 +9,6 @@ import img4 from "./4.png";
 import img5 from "./5.png";
 import img6 from "./6.png";
 
-
 /** Snowman game: plays hangman-style game with a melting snowman.
  *
  * Props:
@@ -24,24 +23,25 @@ import img6 from "./6.png";
  */
 
 function Snowman({
-      images=[img0, img1, img2, img3, img4, img5, img6],
-      words=["apple"],
-      maxWrong=6,
-    }) {
+  images = [img0, img1, img2, img3, img4, img5, img6],
+  words = ["apple"],
+  maxWrong = 6,
+}) {
   /** by default, allow 6 guesses and use provided gallows images. */
 
   const [nWrong, setNWrong] = useState(0);
   const [guessedLetters, setGuessedLetters] = useState(() => new Set());
-  const [answer, setAnswer] = useState((words)[0]);
+  const [answer, setAnswer] = useState(words[0]);
+  const [count, setCount] = useState(0);
 
   /** guessedWord: show current-state of word:
    if guessed letters are {a,p,e}, show "app_e" for "apple"
    */
   function guessedWord() {
-    return answer
-        .split("")
-        .map(ltr => (guessedLetters.has(ltr) ? ltr : "_"));
+    return answer.split("").map((ltr) => (guessedLetters.has(ltr) ? ltr : "_"));
   }
+
+  function guessedCount() {}
 
   /** handleGuess: handle a guessed letter:
    - add to guessed letters
@@ -49,38 +49,44 @@ function Snowman({
    */
   function handleGuess(evt) {
     let ltr = evt.target.value;
+    setCount((count) => count + 1);
 
-    setGuessedLetters(g => {
+    setGuessedLetters((g) => {
       const newGuessed = new Set(g);
       newGuessed.add(ltr);
       return newGuessed;
     });
 
-    setNWrong(n => n + (answer.includes(ltr) ? 0 : 1));
+    setNWrong((n) => n + (answer.includes(ltr) ? 0 : 1));
   }
 
   /** generateButtons: return array of letter buttons to render */
   function generateButtons() {
-    return "abcdefghijklmnopqrstuvwxyz".split("").map(ltr => (
-        <button
-            key={ltr}
-            value={ltr}
-            onClick={handleGuess}
-            disabled={guessedLetters.has(ltr)}
-        >
-          {ltr}
-        </button>
+    return "abcdefghijklmnopqrstuvwxyz".split("").map((ltr) => (
+      <button
+        key={ltr}
+        value={ltr}
+        onClick={handleGuess}
+        disabled={guessedLetters.has(ltr)}
+      >
+        {ltr}
+      </button>
     ));
   }
 
   return (
-      <div className="Snowman">
-        <img src={(images)[nWrong]} alt={nWrong} />
+    <div className="Snowman">
+      <img src={images[nWrong]} alt={nWrong} />
+      <p>Guesses: {count}</p>
+      {count < maxWrong ? (
         <p className="Snowman-word">{guessedWord()}</p>
-        <p>{generateButtons()}</p>
-      </div>
+      ) : (
+        <div>The answer was {answer}</div>
+      )}
+
+      {count < maxWrong ? <p>{generateButtons()}</p> : <h2>You lose!</h2>}
+    </div>
   );
 }
-
 
 export default Snowman;
